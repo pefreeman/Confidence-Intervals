@@ -1,0 +1,107 @@
+---
+title: 'Interval Estimation: Uniform Distribution'
+output: html_document
+date: "2025-03-13"
+---
+
+Let's suppose that we sample $n = 10$ independent and identically distributed (iid)
+data from a $\text{Uniform}(0,\theta)$ distribution:
+
+```{r}
+set.seed(101)
+n     <- 10
+theta <- 1.2
+X     <- runif(n,min=0,max=theta)
+
+sort(X)
+```
+
+What is a 95% one-sided lower bound on $\theta$? (More to the point: how would students
+determine this bound?)
+
+1. Specify the statistic that will be used to derive the bound.
+
+When possible, we should utilize a *sufficient statistic*...does one exist here?
+
+The pdf for the $\text{Uniform}(0,\theta)$ distribution is
+\begin{align*}
+f_X(x) = \frac{1}{\theta-0} = \frac{1}{\theta} ~~~~~~ x \in [0,\theta] \,,
+\end{align*}
+and thus the likelihood of $\theta$, given the observed data $\mathbf{x}$, is
+\begin{align*}
+L(\theta \vert \mathbf{x}) = \prod_{i=1}^n \frac{1}{\theta} = \frac{1}{\theta^n} \,.
+\end{align*}
+We note that no function of the data appears in the likelihood expression. So as we
+have to do with distributions that have domain-specifying parameters, we explicitly
+include an indicator function:
+\begin{align*}
+f_X(x) = \frac{1}{\theta}\mathbb{1}_{(x \in [0,\theta])} ~~~~~~ \Rightarrow ~~~~~~ L(\theta \vert \mathbf{x}) = \frac{1}{\theta^n} \prod_{i=1}^n \mathbb{1}_{(x_i \in [0,\theta])} \,.
+\end{align*}
+The likelihood function is zero unless $\theta$ is larger than (or equal to) the largest 
+datum. Thus a sufficient statistic for $\theta$ is $X_{(n)}$, the maximum observed datum.
+
+2. What is the cumulative distribution function for the sampling distribution for the statistic?
+
+The maximum datum has the probability density function
+\begin{align*}
+f_{(n)}(x) = n f_X(x) [F_X(x)]^{n-1}
+\end{align*}
+and the cumulative distribution function
+\begin{align*}
+F_{(n)}(x) = [F_X(x)]^n \,.
+\end{align*}
+Thus we need to derive the cdf for the individual data:
+\begin{align*}
+F_X(x) = \int_0^x \frac{y}{\theta} dy = \left. \frac{y}{\theta} \right|_0^x = \frac{x}{\theta} \,;
+\end{align*}
+given this, we can see that
+\begin{align*}
+F_{(n)}(x) = \left(\frac{x}{\theta}\right)^n \,.
+\end{align*}
+
+3. What is the interval bound?
+
+To determine the interval bound, we solve the equation
+\begin{align*}
+F_Y(y_{\rm obs} \vert \theta) - q = 0
+\end{align*}
+for $\theta$, where $Y$ is our chosen statistic, $F_Y(\cdot)$ is the cdf for the
+sampling distribution for $Y$, $y_{\rm obs}$ is the observed statistic value,
+and $q$ is an appropriately chosen quantile (see below).
+
+Here, the equation becomes
+\begin{align*}
+\left(\frac{X_{(n)}}{\theta}\right)^n - q = 0 \,,
+\end{align*}
+or
+\begin{align*}
+\hat{\theta} = \frac{X_{(n)}}{q^{1/n}} \,.
+\end{align*}
+But...what is $q$? The confidence interval reference table is
+
+| Interval Type | Does $E[Y]$ Increase with $\theta$? | $q$ for Lower Bound | $q$ for Upper Bound |
+| :---: | :---: | :---: | :---: |
+| two-sided | yes | $1-\alpha/2$ | $\alpha/2$ |
+| two-sided | no | $\alpha/2$ | $1-\alpha/2$ |
+| one-sided lower | yes | $1-\alpha$ | - |
+| one-sided lower | no | $\alpha$ | - |
+| one-sided lower | yes | - | $\alpha$ |
+| one-sided lower | no | - | $1-\alpha$ |
+
+where the confidence coefficient is $1 - \alpha$ (so that $\alpha$ here is 0.05).
+We need not explicitly compute $E[X_{(n)}]$ to know that its value increases as
+$\theta$ increases. However, if we needed to:
+\begin{align*}
+E[X_{(n)}] &= \int_0^\theta x f_{(n)}(x) dx = \int_0^\theta x F_{(n)}'(x) dx = \int_0^\theta x \frac{n}{\theta} \left(\frac{x}{\theta}\right)^{n-1} dx \\
+&= \frac{n}{\theta^n} \int_0^\theta x^n dx = \frac{n}{n+1} \frac{1}{\theta^n} \left. x^{n+1} \right|_0^{\theta} = \frac{n}{n+1}\theta \,.
+\end{align*}
+So we are on the third line of the table: $q = 1 - \alpha = 0.95$.
+
+So now, putting it all together in `R` code:
+```{r}
+n <- 10
+q <- 0.95
+X.n <- max(X)
+cat("The maximum observed value is   ",round(X.n,3),"\n")
+cat("The one-sided lower 95% bound is",round(X.n/(q^(1/n)),3),"\n")
+```
