@@ -95,7 +95,7 @@ and known variance $\sigma^2 = 4$. We observe $\bar{X} = 5$. What is a
 (as found via likelihood factorization) and we know the sampling distribution
 for $\bar{X}$ (as found via the method of moment-generating functions):
 \begin{align*}
-\bar{X} \sim \mathcal{N}\left(\mu,\frac{\sigma^2}{n}\right) \,.
+\bar{X} \sim N\left(\mu,\frac{\sigma^2}{n}\right) \,.
 \end{align*}
 2. The cdf for the random variable $Y = \bar{X}$ is
 \begin{align*}
